@@ -62,19 +62,19 @@ def plot_power_timeline(csv_path, output_dir, freq_mhz=1000.0):
     # Energy per interval (pJ)
     total_energy_pJ = np.array([float(r['total_energy_pJ']) for r in rows])
 
-    # Power (mW) = energy (pJ) / time (ns) = energy_pJ / (duration * period_ns)
-    # pJ / ns = mW  (since 1 pJ/ns = 1 mW)
-    power_mW = total_energy_pJ / (durations * period_ns)
+    # Power (W) = energy (pJ) / time (ns) / 1000 = energy_pJ / (duration * period_ns) / 1000
+    # 1 mW = 1 pJ/ns, so W = mW / 1000
+    power_W = total_energy_pJ / (durations * period_ns) / 1000
 
     # Component energies
     comp_energy = {}
     for col in energy_cols:
         comp_energy[col] = np.array([float(r[col]) for r in rows])
 
-    # Component power (mW)
+    # Component power (W)
     comp_power = {}
     for col in energy_cols:
-        comp_power[col] = comp_energy[col] / (durations * period_ns)
+        comp_power[col] = comp_energy[col] / (durations * period_ns) / 1000
 
     # Pretty labels
     label_map = {
@@ -97,11 +97,10 @@ def plot_power_timeline(csv_path, output_dir, freq_mhz=1000.0):
 
     # --- Plot 1: Total power vs time ---
     fig, ax = plt.subplots(figsize=(14, 5))
-    ax.plot(time_us, power_mW, 'b-', linewidth=1.5, drawstyle='steps-post')
-    ax.fill_between(time_us, 0, power_mW, alpha=0.15, color='blue',
-                    step='post')
+    ax.plot(time_us, power_W, 'b-', linewidth=1.0, marker='o', markersize=3)
+    ax.fill_between(time_us, 0, power_W, alpha=0.15, color='blue')
     ax.set_xlabel('Time (µs)', fontsize=12)
-    ax.set_ylabel('Power (mW)', fontsize=12)
+    ax.set_ylabel('Power (W)', fontsize=12)
     ax.set_title('Total Power vs. Time', fontsize=14)
     ax.grid(True, alpha=0.3)
     ax.yaxis.set_major_formatter(mticker.ScalarFormatter(useMathText=False))
@@ -138,7 +137,7 @@ def plot_power_timeline(csv_path, output_dir, freq_mhz=1000.0):
         y_stack += cat_power
 
     ax.set_xlabel('Time (µs)', fontsize=12)
-    ax.set_ylabel('Power (mW)', fontsize=12)
+    ax.set_ylabel('Power (W)', fontsize=12)
     ax.set_title('Power Breakdown Over Time', fontsize=14)
     ax.legend(loc='upper right', fontsize=10)
     ax.grid(True, alpha=0.3, axis='y')
@@ -156,10 +155,10 @@ def plot_power_timeline(csv_path, output_dir, freq_mhz=1000.0):
 
     for idx, col in enumerate(energy_cols):
         ax = axes[idx]
-        ax.plot(time_us, comp_power[col], drawstyle='steps-post',
-                linewidth=1.0, color=colors[idx])
+        ax.plot(time_us, comp_power[col], linewidth=1.0, marker='o',
+                markersize=2, color=colors[idx])
         ax.fill_between(time_us, 0, comp_power[col], alpha=0.2,
-                        color=colors[idx], step='post')
+                        color=colors[idx])
         ax.set_ylabel(label_map.get(col, col), fontsize=10)
         ax.grid(True, alpha=0.3)
 
@@ -171,13 +170,13 @@ def plot_power_timeline(csv_path, output_dir, freq_mhz=1000.0):
     print(f'Saved {output_dir}/power_components.png')
 
     # Print summary
-    avg_power = np.mean(power_mW)
-    peak_power = np.max(power_mW)
+    avg_power = np.mean(power_W)
+    peak_power = np.max(power_W)
     total_energy = np.sum(total_energy_pJ)
     print(f'\nSummary:')
     print(f'  Intervals:        {n}')
-    print(f'  Avg power:        {avg_power:.2f} mW')
-    print(f'  Peak power:       {peak_power:.2f} mW')
+    print(f'  Avg power:        {avg_power:.4f} W')
+    print(f'  Peak power:       {peak_power:.4f} W')
     print(f'  Total energy:     {total_energy:.2f} pJ')
     print(f'  Frequency:        {freq_mhz} MHz')
 
