@@ -3,7 +3,7 @@ compound_components:
   classes:
   - name: buffet
     attributes:
-      technology: 40nm
+      technology: 40
       depth: 12
       width: 16
       scoreboard_depth: 12

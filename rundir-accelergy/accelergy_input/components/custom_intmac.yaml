@@ -3,7 +3,7 @@ compound_components:
   classes:
   - name: custom_intmac
     attributes:
-      technology: 40nm
+      technology: 40
       width: 32
       action_latency_cycles: 1
     subcomponents:
@@ -11,7 +11,7 @@ compound_components:
         class: intmac
         attributes:
           width: 32
-          technology: 40nm
+          technology: 40
           action_latency_cycles: 1
     actions:
       - name: mac_gated

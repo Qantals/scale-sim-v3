@@ -3,7 +3,7 @@ compound_components:
   classes:
   - name: XY_NoC
     attributes:
-      technology: 40nm
+      technology: 40
       Y_comparator_width: 4  # compare rowID
       X_comparator_width: 4  # compare colID
       n_PE_rows: 12

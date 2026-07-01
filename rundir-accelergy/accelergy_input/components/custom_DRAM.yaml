@@ -3,7 +3,7 @@ compound_components:
   classes:
   - name: custom_DRAM
     attributes:
-      technology: 40nm
+      technology: 40
       type: "LPDDR4"
       width: 32
     subcomponents:
@@ -12,7 +12,7 @@ compound_components:
         attributes:
           type: "LPDDR4"
           width: 32
-          technology: 40nm
+          technology: 40
     actions:
       - name: read
         subcomponents:

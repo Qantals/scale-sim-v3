@@ -3,7 +3,7 @@ compound_components:
   classes:
   - name: smartbuffer_RF
     attributes:
-      technology: 40nm
+      technology: 40
       memory_depth: 12
       memory_width: 16
       n_rdwr_ports: 2

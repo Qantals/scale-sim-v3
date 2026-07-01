@@ -3,7 +3,7 @@ compound_components:
   classes:
   - name: custom_regfile
     attributes:
-      technology: 40nm
+      technology: 40
       width: 1
       depth: 1
     subcomponents:
@@ -12,7 +12,7 @@ compound_components:
         attributes:
           width: width
           depth: depth
-          technology: 40nm
+          technology: 40
           action_latency_cycles: 1
     actions:
       - name: leak

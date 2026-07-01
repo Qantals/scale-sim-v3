@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
     subtree_0 = {}
     subtree_0['name'] = 'systolic_array'
-    subtree_0['attributes'] = {'technology':'40nm'}
+    subtree_0['attributes'] = {'technology':40}
     subtree_0['local'] = GLBs + DRAMs
     subtree_0['subtree'] = [PEs]
 
