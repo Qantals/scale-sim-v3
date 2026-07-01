@@ -27,3 +27,13 @@ test*
 configs_test
 benchmark_results
 .venv/
+
+# my add
+output/
+output*/
+AGENTS.md
+my-docs/
+rundir-accelergy/accelergy_input/action_count.yaml
+rundir-accelergy/accelergy_input/architecture.yaml
+rundir-accelergy/run_accelergy.sh
+rundir-accelergy/create_action_count.sh
