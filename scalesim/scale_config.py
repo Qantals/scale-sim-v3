@@ -59,6 +59,9 @@ class scale_config:
     
     # Sarbartha: Added ramulator based DRAM trace support
         self.use_ramulator_trace = False
+
+        # Trace format: csv, npy, npz, sparse_npy (default)
+        self.trace_format = 'sparse_npy'
     #
     def read_conf_file(self, conf_file_in):
         """
@@ -91,6 +94,11 @@ class scale_config:
             self.use_ramulator_trace = True
         else:
             self.use_ramulator_trace = False
+
+        if config.has_option(section, 'TraceFormat'):
+            trace_fmt = config.get(section, 'TraceFormat')
+            if trace_fmt in ['csv', 'npy', 'npz', 'sparse_npy']:
+                self.trace_format = trace_fmt
         
         # TODO Sarbartha: Should be bw
         div_factor = 1

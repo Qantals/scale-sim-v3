@@ -2,6 +2,7 @@
 Double buffer read memory implementation
 """
 # TODO: Verification Pending
+import os
 import math
 import numpy as np
 from tqdm import tqdm
@@ -575,7 +576,7 @@ class read_buffer:
         return start_cycle, end_cycle
 
     #
-    def print_trace(self, filename):
+    def print_trace(self, filename, trace_format='sparse_npy'):
         """
         Method to write the read buffer trace matrix to a file.
         """
@@ -583,4 +584,10 @@ class read_buffer:
             print('No trace has been generated yet')
             return
 
-        np.savetxt(filename, self.trace_matrix, fmt='%s', delimiter=",")
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        if trace_format == 'csv':
+            np.savetxt(filename, self.trace_matrix, fmt='%s', delimiter=",")
+        elif trace_format == 'npz':
+            np.savez_compressed(filename, trace=self.trace_matrix)
+        else:  # npy, sparse_npy (DRAM stays dense)
+            np.save(filename, self.trace_matrix)

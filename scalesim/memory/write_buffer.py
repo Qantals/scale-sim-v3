@@ -3,6 +3,7 @@ The `write_buffer` class simulates the memory operations of the OFMAP SRAM for a
 write system in systolic array-based computations.
 """
 # TODO: Verification Pending
+import os
 import time
 import math
 import numpy as np
@@ -326,7 +327,7 @@ class write_buffer:
         return start_cycle, end_cycle
 
     #
-    def print_trace(self, filename):
+    def print_trace(self, filename, trace_format='sparse_npy'):
         """
         Method to write the write buffer trace matrix to a file.
         """
@@ -334,4 +335,10 @@ class write_buffer:
             print('No trace has been generated yet')
             return
         trace_matrix = self.get_trace_matrix()
-        np.savetxt(filename, trace_matrix, fmt='%s', delimiter=",")
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        if trace_format == 'csv':
+            np.savetxt(filename, trace_matrix, fmt='%s', delimiter=",")
+        elif trace_format == 'npz':
+            np.savez_compressed(filename, trace=trace_matrix)
+        else:  # npy, sparse_npy (DRAM stays dense)
+            np.save(filename, trace_matrix)

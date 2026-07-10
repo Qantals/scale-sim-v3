@@ -27,8 +27,24 @@ import yaml
 # Helpers
 # ---------------------------------------------------------------------------
 
-def read_trace_csv(filepath):
-    """Read a trace CSV, return ndarray (col 0 = cycle, rest = addresses)."""
+def read_trace(filepath):
+    """Read a trace file, return ndarray. Supports CSV (.csv) and NumPy binary (.npy, .npz).
+
+    For CSV and dense .npy/.npz: col 0 = cycle, rest = addresses (with -1 for inactive).
+    For sparse .npy/.npz (shape (N, 2)): col 0 = cycle, col 1 = address (only active entries).
+    """
+    ext = os.path.splitext(filepath)[1].lower()
+    if ext == '.csv':
+        return _read_trace_csv(filepath)
+    elif ext in ('.npy', '.npz'):
+        return _read_trace_binary(filepath)
+    else:
+        # Fallback: try CSV first
+        return _read_trace_csv(filepath)
+
+
+def _read_trace_csv(filepath):
+    """Read a CSV trace file (legacy format)."""
     try:
         df = pd.read_csv(filepath, header=None, na_values=[''])
     except pd.errors.EmptyDataError:
@@ -40,18 +56,54 @@ def read_trace_csv(filepath):
     return arr
 
 
+def _read_trace_binary(filepath):
+    """Read a NumPy binary trace file (.npy or .npz)."""
+    ext = os.path.splitext(filepath)[1].lower()
+    if ext == '.npz':
+        data = np.load(filepath)
+        # NPZ stores arrays by key; try 'trace' then first key
+        if 'trace' in data:
+            arr = data['trace']
+        else:
+            arr = data[list(data.keys())[0]]
+        data.close()
+    else:
+        arr = np.load(filepath)
+
+    if arr.ndim == 2 and arr.shape[1] == 2:
+        # Sparse format: (cycle, addr) pairs — convert to float for compatibility
+        return arr.astype(float)
+    # Dense format: same as CSV
+    return arr.astype(float)
+
+
+def read_trace_csv(filepath):
+    """Backward-compatible wrapper (deprecated, use read_trace)."""
+    return read_trace(filepath)
+
+
 def count_active_in_window(trace_arr, win_start, win_end):
     """Count non-(-1) values in rows whose cycle is in [win_start, win_end).
+
+    Works with both dense and sparse trace formats:
+    - Dense (N, C): col 0 = cycle, cols 1+ = addresses with -1 sentinel
+    - Sparse (N, 2): col 0 = cycle, col 1 = address (all entries are active)
 
     Returns (active_count, n_rows_in_window).
     """
     if trace_arr.size == 0:
         return 0, 0
     cycles = trace_arr[:, 0]
-    addrs = trace_arr[:, 1:]
     mask = (cycles >= win_start) & (cycles < win_end)
     if not np.any(mask):
         return 0, 0
+
+    if trace_arr.shape[1] == 2:
+        # Sparse format: all rows in the window are active
+        return int(np.sum(mask)), int(np.sum(mask))
+
+    # Dense format: filter -1 and NaN
+    addrs = trace_arr[:, 1:]
     addrs_win = addrs[mask]
     n_rows = addrs_win.shape[0]
     active = 0
@@ -122,15 +174,23 @@ def process_intervals(saved_folder, run_name, config_path, interval_size):
     detail = detail_df.to_numpy()
 
     # --- Determine global cycle range from DRAM traces ---------------------
+    def _find_trace_file(dirpath, basename):
+        """Find a trace file with any supported extension (.csv, .npy, .npz)."""
+        for ext in ['.csv', '.npy', '.npz']:
+            fp = os.path.join(dirpath, basename + ext)
+            if os.path.exists(fp):
+                return fp
+        return None
+
     global_min = float('inf')
     global_max = float('-inf')
     for ld in layer_dirs:
         lp = os.path.join(run_dir, ld)
-        for fname in ['IFMAP_DRAM_TRACE.csv', 'FILTER_DRAM_TRACE.csv',
-                       'OFMAP_DRAM_TRACE.csv']:
-            fp = os.path.join(lp, fname)
-            if os.path.exists(fp):
-                arr = read_trace_csv(fp)
+        for fname in ['IFMAP_DRAM_TRACE', 'FILTER_DRAM_TRACE',
+                       'OFMAP_DRAM_TRACE']:
+            fp = _find_trace_file(lp, fname)
+            if fp:
+                arr = read_trace(fp)
                 if arr.size > 0:
                     global_min = min(global_min, np.nanmin(arr[:, 0]))
                     global_max = max(global_max, np.nanmax(arr[:, 0]))
@@ -157,13 +217,13 @@ def process_intervals(saved_folder, run_name, config_path, interval_size):
         lp = os.path.join(run_dir, ld)
         print(f'Processing {ld} ...')
 
-        # Load traces
-        ifmap_sram = read_trace_csv(os.path.join(lp, 'IFMAP_SRAM_TRACE.csv'))
-        filter_sram = read_trace_csv(os.path.join(lp, 'FILTER_SRAM_TRACE.csv'))
-        ofmap_sram = read_trace_csv(os.path.join(lp, 'OFMAP_SRAM_TRACE.csv'))
-        ifmap_dram = read_trace_csv(os.path.join(lp, 'IFMAP_DRAM_TRACE.csv'))
-        filter_dram = read_trace_csv(os.path.join(lp, 'FILTER_DRAM_TRACE.csv'))
-        ofmap_dram = read_trace_csv(os.path.join(lp, 'OFMAP_DRAM_TRACE.csv'))
+        # Load traces (auto-detect format)
+        ifmap_sram = read_trace(_find_trace_file(lp, 'IFMAP_SRAM_TRACE') or '')
+        filter_sram = read_trace(_find_trace_file(lp, 'FILTER_SRAM_TRACE') or '')
+        ofmap_sram = read_trace(_find_trace_file(lp, 'OFMAP_SRAM_TRACE') or '')
+        ifmap_dram = read_trace(_find_trace_file(lp, 'IFMAP_DRAM_TRACE') or '')
+        filter_dram = read_trace(_find_trace_file(lp, 'FILTER_DRAM_TRACE') or '')
+        ofmap_dram = read_trace(_find_trace_file(lp, 'OFMAP_DRAM_TRACE') or '')
 
         # Windows from DETAILED_ACCESS_REPORT
         # Map our activity keys to the window dictionary keys
