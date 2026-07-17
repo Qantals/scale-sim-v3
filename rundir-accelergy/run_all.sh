@@ -2,7 +2,7 @@
 
 ########### User Input ##########################
 
-while getopts c:t:p:o:i:s:f: flag
+while getopts c:t:p:o:i:s: flag
 do
     case "${flag}" in
         c) scsimCfg=${OPTARG};;
@@ -11,13 +11,12 @@ do
         o) allOutput=${OPTARG};;
         i) topoOption=${OPTARG};;
         s) intervalSize=${OPTARG};;
-        f) traceFormat=${OPTARG};;
     esac
 done 
 
 if [[ $scsimCfg == ""  ||  $scsimTplg == ""  || $allOutput == "" ]]; then
  echo "Not enough input files privoded"
- echo "./run_all.sh -c <path_to_config_file> -t <path_to_topology_file> -p <path_to_scale-sim_log_dir> -o <path_to_final_output_dir> [-s <interval_size>] [-f <trace_format>]"
+ echo "./run_all.sh -c <path_to_config_file> -t <path_to_topology_file> -p <path_to_scale-sim_log_dir> -o <path_to_final_output_dir> [-s <interval_size>]"
  exit 0
 fi
 
@@ -26,18 +25,12 @@ if [[ -z "$intervalSize" ]]; then
     intervalSize=1000
 fi
 
-# Default trace format: sparse_npy (binary, fast)
-if [[ -z "$traceFormat" ]]; then
-    traceFormat="sparse_npy"
-fi
-
 echo "config file: $scsimCfg";
 echo "topology file: $scsimTplg";
 echo "scsim log dir: $scsimOutput";
 echo "output dir: $allOutput";
 echo "topology option: $topoOption";
 echo "interval size: $intervalSize";
-echo "trace format: $traceFormat";
 
 ################################################
 
@@ -62,8 +55,8 @@ python3 preprocess.py -c $scsimCfg -t $scsimTplg -p $scsimOutput -o $allOutput
 
 # Run Scale-sim
 cd ..
-# Build the scale.py command with optional -i and trace_format flags
-SCSIM_CMD="python3 scale.py -c $scsimCfg -t $scsimTplg -p $scsimOutput -s Y --trace-format $traceFormat"
+# Build the scale.py command with optional -i flag
+SCSIM_CMD="python3 scale.py -c $scsimCfg -t $scsimTplg -p $scsimOutput"
 if [[ -n "$topoOption" ]]; then
     SCSIM_CMD="$SCSIM_CMD -i $topoOption"
 fi

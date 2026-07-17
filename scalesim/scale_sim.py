@@ -22,8 +22,7 @@ class scalesim:
                  config='',
                  topology='',
                  layout='',
-                 input_type_gemm=False,
-                 trace_format='sparse_npy'):
+                 input_type_gemm=False):
         """
         __init__ method
         """
@@ -47,7 +46,6 @@ class scalesim:
         self.verbose_flag = verbose
         self.run_done_flag = False
         self.logs_generated_flag = False
-        self.trace_format = trace_format
 
         self.set_params(config_filename=config, topology_filename=topology, layout_filename=layout)
 
@@ -123,8 +121,7 @@ class scalesim:
             layout_obj=self.layout,
             top_path=self.top_path,
             verbosity=self.verbose_flag,
-            save_trace=save_trace,
-            trace_format=self.trace_format
+            save_trace=save_trace
         )
         self.run_once()
 

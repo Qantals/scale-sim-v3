@@ -31,12 +31,7 @@ if __name__ == '__main__':
                         )
     parser.add_argument('-s', metavar='save trace', type=str,
                         default="Y",
-                        help="Save Trace: (Y/N), default Y"
-                        )
-    parser.add_argument('--trace-format', metavar='trace format', type=str,
-                        default='sparse_npy',
-                        choices=['csv', 'npy', 'npz', 'sparse_npy'],
-                        help="Trace file format: csv, npy, npz, sparse_npy (default)"
+                        help="Save Trace: (Y/N)"
                         )
 
     args = parser.parse_args()
@@ -46,7 +41,6 @@ if __name__ == '__main__':
     logpath = args.p
     inp_type = args.i
     save_trace = args.s
-    trace_format = args.trace_format
 
     GEMM_INPUT = False
     if inp_type == 'gemm':
@@ -58,12 +52,11 @@ if __name__ == '__main__':
         save_space = True
    
 
-    s = scalesim(save_disk_space=save_space,
+    s = scalesim(save_disk_space=False,
                  verbose=True,
                  config=config,
                  topology=topology,
                  layout=layout,
-                 input_type_gemm=GEMM_INPUT,
-                 trace_format=trace_format
+                 input_type_gemm=GEMM_INPUT
                  )
     s.run_scale(top_path=logpath)

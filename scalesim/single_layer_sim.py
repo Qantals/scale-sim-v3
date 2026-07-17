@@ -318,7 +318,7 @@ class single_layer_sim:
 
 
     # This will write the traces
-    def save_traces(self, top_path, trace_format='sparse_npy'):
+    def save_traces(self, top_path):
         """
         Method to save SRAM and DRAM traces for ifmap, filter and ofmap matrices.
         """
@@ -331,28 +331,20 @@ class single_layer_sim:
             # os.mkdir(dir_name)
             os.makedirs(dir_name, exist_ok=True)
 
-        # Determine file extension based on format
-        if trace_format == 'csv':
-            ext = '.csv'
-        elif trace_format == 'npz':
-            ext = '.npz'
-        else:  # npy, sparse_npy
-            ext = '.npy'
+        ifmap_sram_filename = dir_name +  '/IFMAP_SRAM_TRACE.csv'
+        filter_sram_filename = dir_name + '/FILTER_SRAM_TRACE.csv'
+        ofmap_sram_filename = dir_name +  '/OFMAP_SRAM_TRACE.csv'
 
-        ifmap_sram_filename = dir_name +  '/IFMAP_SRAM_TRACE' + ext
-        filter_sram_filename = dir_name + '/FILTER_SRAM_TRACE' + ext
-        ofmap_sram_filename = dir_name +  '/OFMAP_SRAM_TRACE' + ext
+        ifmap_dram_filename = dir_name +  '/IFMAP_DRAM_TRACE.csv'
+        filter_dram_filename = dir_name + '/FILTER_DRAM_TRACE.csv'
+        ofmap_dram_filename = dir_name +  '/OFMAP_DRAM_TRACE.csv'
 
-        ifmap_dram_filename = dir_name +  '/IFMAP_DRAM_TRACE' + ext
-        filter_dram_filename = dir_name + '/FILTER_DRAM_TRACE' + ext
-        ofmap_dram_filename = dir_name +  '/OFMAP_DRAM_TRACE' + ext
-
-        self.memory_system.print_ifmap_sram_trace(ifmap_sram_filename, trace_format)
-        self.memory_system.print_ifmap_dram_trace(ifmap_dram_filename, trace_format)
-        self.memory_system.print_filter_sram_trace(filter_sram_filename, trace_format)
-        self.memory_system.print_filter_dram_trace(filter_dram_filename, trace_format)
-        self.memory_system.print_ofmap_sram_trace(ofmap_sram_filename, trace_format)
-        self.memory_system.print_ofmap_dram_trace(ofmap_dram_filename, trace_format)
+        self.memory_system.print_ifmap_sram_trace(ifmap_sram_filename)
+        self.memory_system.print_ifmap_dram_trace(ifmap_dram_filename)
+        self.memory_system.print_filter_sram_trace(filter_sram_filename)
+        self.memory_system.print_filter_dram_trace(filter_dram_filename)
+        self.memory_system.print_ofmap_sram_trace(ofmap_sram_filename)
+        self.memory_system.print_ofmap_dram_trace(ofmap_dram_filename)
 
     #
     def calc_report_data(self):

@@ -27,7 +27,6 @@ class simulator:
         self.top_path = "./"
         self.verbose = True
         self.save_trace = True
-        self.trace_format = 'sparse_npy'
 
         self.num_layers = 0
 
@@ -43,8 +42,7 @@ class simulator:
                    layout_obj=layout(),
                    top_path="./",
                    verbosity=True,
-                   save_trace=True,
-                   trace_format='sparse_npy'
+                   save_trace=True
                    ):
         """
         Method to set the run parameters including inputs and parameters for housekeeping.
@@ -55,7 +53,6 @@ class simulator:
 
         self.top_path = top_path
         self.verbose = verbosity
-        self.trace_format = trace_format
         self.save_trace = save_trace
 
         # Calculate inferrable parameters here
@@ -158,7 +155,7 @@ class simulator:
             if self.save_trace:
                 if self.verbose:
                     print('Saving traces: ', end='')
-                single_layer_obj.save_traces(self.top_path, self.trace_format)
+                single_layer_obj.save_traces(self.top_path)
                 if self.verbose:
                     print('Done!')
 

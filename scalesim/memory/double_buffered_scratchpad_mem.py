@@ -697,82 +697,47 @@ class double_buffered_scratchpad:
         return dram_ifmap_trace, dram_filter_trace, dram_ofmap_trace
 
     #
-    @staticmethod
-    def _write_trace(filename, matrix, trace_format, is_sram=True):
-        """Write trace matrix to file based on format.
-
-        Args:
-            filename: Output file path
-            matrix: NumPy array (dense for DRAM, dense for SRAM with -1)
-            trace_format: 'csv', 'npy', 'npz', or 'sparse_npy'
-            is_sram: If True and sparse_npy, apply sparse conversion
-        """
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        if trace_format == 'csv':
-            fmt = '%i' if matrix.dtype.kind == 'i' else '%s'
-            np.savetxt(filename, matrix, fmt=fmt, delimiter=",")
-        elif trace_format == 'npz':
-            np.savez_compressed(filename, trace=matrix)
-        elif trace_format == 'npy':
-            np.save(filename, matrix)
-        elif trace_format == 'sparse_npy':
-            if is_sram:
-                sparse_mat = double_buffered_scratchpad._sparse_sram_trace_static(matrix)
-                np.save(filename, sparse_mat)
-            else:
-                np.save(filename, matrix)
-
-    @staticmethod
-    def _sparse_sram_trace_static(trace_matrix):
-        """Static version for use in static _write_trace."""
-        cycles = trace_matrix[:, 0]
-        addrs = trace_matrix[:, 1:]
-        active_mask = addrs != -1
-        rows, cols = np.where(active_mask)
-        sparse = np.column_stack((cycles[rows], addrs[rows, cols]))
-        return sparse.astype(np.int64)
-
-    #
-    def print_ifmap_sram_trace(self, filename, trace_format='sparse_npy'):
+    def print_ifmap_sram_trace(self, filename):
         """
         Method to write the ifmap SRAM trace matrix to a file if trace_valid flag is set.
         """
         assert self.traces_valid, 'Traces not generated yet'
-        self._write_trace(filename, self.ifmap_trace_matrix, trace_format, is_sram=True)
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        np.savetxt(filename, self.ifmap_trace_matrix, fmt='%i', delimiter=",")
 
     #
-    def print_filter_sram_trace(self, filename, trace_format='sparse_npy'):
+    def print_filter_sram_trace(self, filename):
         """
         Method to write the filter SRAM trace matrix to a file if trace_valid flag is set.
         """
         assert self.traces_valid, 'Traces not generated yet'
-        self._write_trace(filename, self.filter_trace_matrix, trace_format, is_sram=True)
+        np.savetxt(filename, self.filter_trace_matrix, fmt='%i', delimiter=",")
 
     #
-    def print_ofmap_sram_trace(self, filename, trace_format='sparse_npy'):
+    def print_ofmap_sram_trace(self, filename):
         """
         Method to write the Ofmap SRAM trace matrix to a file if trace_valid flag is set.
         """
         assert self.traces_valid, 'Traces not generated yet'
-        self._write_trace(filename, self.ofmap_trace_matrix, trace_format, is_sram=True)
+        np.savetxt(filename, self.ofmap_trace_matrix, fmt='%i', delimiter=",")
 
     #
-    def print_ifmap_dram_trace(self, filename, trace_format='sparse_npy'):
+    def print_ifmap_dram_trace(self, filename):
         """
         Method to write the ifmap DRAM trace matrix to a file.
         """
-        self.ifmap_buf.print_trace(filename, trace_format)
+        self.ifmap_buf.print_trace(filename)
 
     #
-    def print_filter_dram_trace(self, filename, trace_format='sparse_npy'):
+    def print_filter_dram_trace(self, filename):
         """
         Method to write the filter DRAM trace matrix to a file.
         """
-        self.filter_buf.print_trace(filename, trace_format)
+        self.filter_buf.print_trace(filename)
 
     #
-    def print_ofmap_dram_trace(self, filename, trace_format='sparse_npy'):
+    def print_ofmap_dram_trace(self, filename):
         """
         Method to write the iomap DRAM trace matrix to a file.
         """
-        self.ofmap_buf.print_trace(filename, trace_format)
+        self.ofmap_buf.print_trace(filename)

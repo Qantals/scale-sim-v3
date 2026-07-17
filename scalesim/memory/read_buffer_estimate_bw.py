@@ -3,7 +3,6 @@ The 'ReadBufferEstimateBw' class simulates a double-buffered memory read buffer 
 bandwidth mode designed for systolic array computations.
 """
 
-import os
 import math
 import numpy as np
 
@@ -363,7 +362,7 @@ class ReadBufferEstimateBw:
         return start_cycle, end_cycle
 
     #
-    def print_trace(self, filename, trace_format='sparse_npy'):
+    def print_trace(self, filename):
         """
         Method to write the read estimate buffer trace matrix to a file.
         """
@@ -371,10 +370,4 @@ class ReadBufferEstimateBw:
             print('No trace has been generated yet')
             return
 
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        if trace_format == 'csv':
-            np.savetxt(filename, self.trace_matrix, fmt='%s', delimiter=",")
-        elif trace_format == 'npz':
-            np.savez_compressed(filename, trace=self.trace_matrix)
-        else:  # npy, sparse_npy (DRAM stays dense)
-            np.save(filename, self.trace_matrix)
+        np.savetxt(filename, self.trace_matrix, fmt='%s', delimiter=",")
