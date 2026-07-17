@@ -47,6 +47,7 @@ def plot_bw():
     plt.xlim(x1[0]-2*barWidth, x4[-1]+2*barWidth)
     plt.legend()
     plt.show()
+    plt.savefig('./Exp1/'+benchmark+'_mem_bw_plot.png',dpi=300,bbox_inches='tight')
     
 
 if __name__ =="__main__":
