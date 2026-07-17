@@ -82,10 +82,10 @@ class read_port:
             out_cycles_arr = incoming_cycles_arr + self.latency
             return out_cycles_arr
 
-        updated_req_timestamp = incoming_cycles_arr[0]
+        updated_req_timestamp = incoming_cycles_arr[0][0]
         out_cycles_arr = np.zeros(incoming_requests_arr_np.shape[0])
         for i in range(len(incoming_cycles_arr)):
-            out_cycles_arr[i] = incoming_cycles_arr[i] + self.stall_cycles + self.find_latency()
+            out_cycles_arr[i] = incoming_cycles_arr[i][0] + self.stall_cycles + self.find_latency()
             #print(str(incoming_cycles_arr[i]) + ' ' + str(out_cycles_arr[i]) + ' ' +str(self.stall_cycles))
             self.request_array.append(out_cycles_arr[i])
             if len(self.request_array) == self.request_queue_size:
