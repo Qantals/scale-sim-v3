@@ -36,3 +36,7 @@ my-docs/
 rundir-accelergy/accelergy_input/*.yaml
 rundir-accelergy/run_accelergy.sh
 rundir-accelergy/create_action_count.sh
+results/
+Exp1/
+*orig_out
+*stall_out
